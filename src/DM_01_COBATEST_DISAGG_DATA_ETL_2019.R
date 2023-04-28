@@ -32,13 +32,13 @@ OUTPUT_DATA_FOLDER <-   "data/DisaggragatedData/disagg_processed_data/"
 # Watch files:   list.files(DISAGGREGATED_DATA_FOLDER)
 # Watch files:   list.files(AUXILIAR_DATA_FOLDER)
 
-COLUMN_MAPINGS_FILENAME <- "COBATEST_2018_Column_Mappings.xlsx"
-CENTERS_DATA_FILENAME <- "Centros_v2018.xlsx"
-CENTERS_DATA_SHEET_NAME <- "COBA_2018"
+COLUMN_MAPINGS_FILENAME <- "COBATEST_2019_Column_Mappings.xlsx"
+CENTERS_DATA_FILENAME <- "Centros_v2019.xlsx"
+CENTERS_DATA_SHEET_NAME <- "COBA_2019"
 
 
 TODAY <-format(Sys.Date(), "%Y%m%d")
-YEAR <- 2018
+YEAR <- 2019
 
 
 # _________________________________________________________________________ ####
