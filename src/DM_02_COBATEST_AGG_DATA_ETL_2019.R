@@ -29,7 +29,7 @@ OUTPUT_DATA_FOLDER <- "data/AggregadatedData/agg_processed_data/"     # Watch fi
 ## 1.1.- Auxiliar data  ####
 #--------------------------#
 # Es carrega un fitxer de mapeig de noms de centres amb els seus codis i el tipus de dades que son: cobatest tool, desagregades o agregades.
-center_maps <- setDT(read.xlsx(paste0(AUXILIAR_DATA_FOLDER, "Centros_v2018.xlsx"), sheet = "COBA_2018"))
+center_maps <- setDT(read.xlsx(paste0(AUXILIAR_DATA_FOLDER, "Centros_v2019.xlsx"), sheet = "COBA_2019"))
 
 
 ## 1.2.- Aggregated data  ####
