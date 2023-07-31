@@ -1142,32 +1142,26 @@ disagg_cobatest[n_syph_NA == length(syph_cols), SyphScreeningTest := 2]
 
 
 ## COMPROBACIO:  Imputar syphscreeningTEst a partir d'alguna variable de resultats informada amb positiu. 
-disagg_cobatest[, .N, .(SyphScreeningTest, SyphScreeningTestResult, SyphConfirmatoryTest, SyphConfirmatoryTestResult, SyphTestUsed)][order(SyphScreeningTest, SyphScreeningTestResult, SyphConfirmatoryTest, SyphConfirmatoryTestResult, SyphTestUsed)]
-
-
-aquiiiiii
-# old --------------------------------------------------------------------
-
-
-
-## COMPROBACIO:  Altres omplenaments syph amb algun 1 en variables clau
-disagg_cobatest[, .N, by= .(SyphScreeningTest, SyphScreeningTestResult, SyphConfirmatoryTest, SyphConfirmatoryTestResult)][order(SyphScreeningTest, SyphScreeningTestResult, SyphConfirmatoryTest, SyphConfirmatoryTestResult)]
-#
-# Dels missings a SyphscreeningTest, mirem les variables syph relacionades amb testatge, no resultats. 
-# disagg_cobatest[is.na(SyphScreeningTest) & is.na(SyphScreeningTestResult) & is.na(SyphConfirmatoryTest) & is.na(SyphConfirmatoryTestResult), .N, .(SyphEverTested, SyphEverDiagnosed, SyphTestedLastYear, SyphTestedLastYearSameCBVCT)]
-#
-# S'arriba a la conclusió que pel fet de tenir informació sobre syphilis, si no hi ha cap resultat de tests, posarem que si s'ha fet el test per tal 
-# d'obtenir la informació però entraran com a missings als resultats
-
+# disagg_cobatest[, .N, .(SyphScreeningTest, SyphScreeningTestResult, SyphConfirmatoryTest, SyphConfirmatoryTestResult, SyphTestUsed)][order(SyphScreeningTest, SyphScreeningTestResult, SyphConfirmatoryTest, SyphConfirmatoryTestResult, SyphTestUsed)]
 disagg_cobatest[is.na(SyphScreeningTest) 
-                & is.na(SyphScreeningTestResult) 
-                & is.na(SyphConfirmatoryTest) 
-                & is.na(SyphConfirmatoryTestResult) 
-                & (SyphEverTested %in% 1:2 | SyphEverDiagnosed %in% 1:2 | SyphTestedLastYear %in% 1:2 | SyphTestedLastYearSameCBVCT %in% 1:2), 
+                & (SyphScreeningTestResult %in% 1:2
+                   | SyphConfirmatoryTest == 1 
+                   | SyphConfirmatoryTestResult %in% 1:2), 
                 SyphScreeningTest := 1]
-                
-## Ens queda:  
-disagg_cobatest[is.na(SyphScreeningTest), .N, syph_cols]
+
+## COMPROBACIO::  Quins encara tenen syphScreeningTest NA i tenen els resultats a NA però les variables syph descriptives no NA.
+# disagg_cobatest[is.na(SyphScreeningTest) & (SyphEverDiagnosed %in% 1:2 | SyphEverTested %in% 1:2 | SyphTestedLastYear %in% 1:2 | SyphTestedLastYearSameCBVCT %in% 1:2), .N, by= .(SyphEverDiagnosed, SyphEverTested, SyphTestedLastYear, SyphTestedLastYearSameCBVCT)][order(SyphEverDiagnosed, SyphEverTested, SyphTestedLastYear, SyphTestedLastYearSameCBVCT)]
+# disagg_cobatest[is.na(SyphScreeningTest) & (SyphEverDiagnosed %in% 1:2 | SyphEverTested %in% 1:2 | SyphTestedLastYear %in% 1:2 | SyphTestedLastYearSameCBVCT %in% 1:2), .N, by= .(Centre)][order(as.numeric(Centre))]
+#
+# A tots aquests els posem que s'han anat a testar de sifilis pq han omplert el formulari aquest però son missings per contar.
+disagg_cobatest[is.na(SyphScreeningTest) 
+                & (SyphEverDiagnosed %in% 1:2
+                   | SyphEverTested %in% 1:2 
+                   | SyphTestedLastYear %in% 1:2
+                   | SyphTestedLastYearSameCBVCT %in% 1:2), 
+                SyphScreeningTest := 1]
+
+
 
 ### 2.10.2.- Syph Ever Tested    ####  
 # --------------------------------- #  
@@ -1234,8 +1228,6 @@ disagg_cobatest[!is.na(Id), SyphEverDiagnosed := nafill(x = as.numeric(SyphEverD
 
 
 
-
-
 ### 2.10.4.- Syph Screening Test Result    ####  
 # ------------------------------------------- #
 # CBVCT 5: Proportion of clients with reactive screening Syphilis test result 
@@ -1248,15 +1240,72 @@ disagg_cobatest[!is.na(Id), SyphEverDiagnosed := nafill(x = as.numeric(SyphEverD
 disagg_cobatest[!SyphScreeningTestResult %in% c('1', '2'), SyphScreeningTestResult := as.character(NA)]
 
 
+### 2.10.4.- Syph Confirmatory Screening Test Result    ####  
+# -------------------------------------------------------- #
 
+## COMPROBACIÓ:
+# disagg_cobatest[, .N, SyphConfirmatoryTestResult]
 
+# Recategoritzem
+disagg_cobatest[!SyphConfirmatoryTestResult %in% c('1', '2'), SyphConfirmatoryTestResult := as.character(NA)]
 
   
+
+disagg_cobatest[is.na(SyphScreeningTest) & (SyphEverDiagnosed %in% 1:2 | SyphEverTested %in% 1:2 | SyphTestedLastYear %in% 1:2 | SyphTestedLastYearSameCBVCT %in% 1:2), .N, by= .(SyphEverDiagnosed, SyphEverTested, SyphTestedLastYear, SyphTestedLastYearSameCBVCT)][order(SyphEverDiagnosed, SyphEverTested, SyphTestedLastYear, SyphTestedLastYearSameCBVCT)]
+disagg_cobatest[is.na(SyphScreeningTest) & (SyphEverDiagnosed %in% 1:2 | SyphEverTested %in% 1:2 | SyphTestedLastYear %in% 1:2 | SyphTestedLastYearSameCBVCT %in% 1:2), .N, by= .(Centre)][order(as.numeric(Centre))]
+
+
 ## 2.11- Fix HCV Data     ####
 #---------------------------- #
 colnames(disagg_cobatest)[grepl(pattern = 'hcv', x = colnames(disagg_cobatest), ignore.case = T)]
 
-### 2.11.1.- HCV Ever Tested    ####  
+
+### 2.11.1.- HCV Screening Test           ####  
+# ------------------------------------------- #
+hcv_cols <- colnames(disagg_cobatest)[grepl(x = colnames(disagg_cobatest), pattern = "hcv", ignore.case = T)]
+
+# COMPROBACIO:   disagg_cobatest[, .N, HCVScreeningTest][order(HCVScreeningTest)]
+#
+# - Què vol dir HCVScreeningTest = 3. Explorem
+#
+#                disagg_cobatest[, .N, .(Centre, HCVScreeningTest)][order(as.numeric(Centre), HCVScreeningTest)]
+#                disagg_cobatest[HCVScreeningTest == 3, .N, hcv_cols]
+# 
+# Després d'una inspecció del contingut i les Ns s'interpreta que va posarl-los com HCVScreeningTest = 2. I la resta a Missing.
+disagg_cobatest[HCVScreeningTest == 3, (syph_cols) := lapply(X = .SD, FUN = function(x) x <- NA), .SDcols = syph_cols]
+
+# Per esbrinar l'omplenament d'aquest subset de dades
+n_hcv_missing <- rowSums(is.na(disagg_cobatest[, ..hcv_cols]))
+disagg_cobatest[, n_hcv_NA := n_hcv_missing]
+disagg_cobatest[, .N, n_hcv_NA][order(n_hcv_NA)]
+
+## COMPROBACIO:  Tota la fila syphilis a NA.
+# disagg_cobatest[n_hcv_NA == length(hcv_cols), .N, by= hcv_cols]   # Tots Missing. ---> Posar SyphScreeningTest == 2
+# disagg_cobatest[n_hcv_NA == length(hcv_cols), .N, by= Centre]   # Tots Missing. ---> Posar SyphScreeningTest == 2
+disagg_cobatest[n_hcv_NA == length(hcv_cols), HCVScreeningTest := 2]
+
+
+## COMPROBACIO:  Imputar HCVscreeningTEst a partir d'alguna variable de resultats informada amb positiu. 
+# disagg_cobatest[, .N, .(HCVScreeningTest, HCVScreeningTestResult, HCVConfirmatoryTest, HCVConfirmatoryTestResult, HCVTestUsed)][order(HCVScreeningTest, HCVScreeningTestResult, HCVConfirmatoryTest, HCVConfirmatoryTestResult, HCVTestUsed)]
+disagg_cobatest[is.na(HCVScreeningTest) 
+                & (HCVScreeningTestResult %in% 1:2
+                  | HCVConfirmatoryTestResult %in% 1:2), 
+                HCVScreeningTest := 1]
+
+## COMPROBACIO::  Quins encara tenen HCVScreeningTest NA i tenen els resultats a NA però les variables HCV descriptives no NA.
+# disagg_cobatest[is.na(HCVScreeningTest) & (HCVEverDiagnosed %in% 1:2 | HCVEverTested %in% 1:2 | HCVTestedLastYear %in% 1:2 | HCVTestedLastYearSameCBVCT %in% 1:2), .N, by= .(HCVEverDiagnosed, HCVEverTested, HCVTestedLastYear, HCVTestedLastYearSameCBVCT)][order(HCVEverDiagnosed, HCVEverTested, HCVTestedLastYear, HCVTestedLastYearSameCBVCT)]
+# disagg_cobatest[is.na(HCVScreeningTest) & (HCVEverDiagnosed %in% 1:2 | HCVEverTested %in% 1:2 | HCVTestedLastYear %in% 1:2 | HCVTestedLastYearSameCBVCT %in% 1:2), .N, by= .(Centre)][order(as.numeric(Centre))]
+#
+# A tots aquests els posem que s'han anat a testar de sifilis pq han omplert el formulari aquest però son missings per contar.
+disagg_cobatest[is.na(HCVScreeningTest) 
+                & (HCVEverDiagnosed %in% 1:2
+                   | HCVEverTested %in% 1:2 
+                   | HCVTestedLastYear %in% 1:2
+                   | HCVTestedLastYearSameCBVCT %in% 1:2), 
+                HCVScreeningTest := 1]
+
+
+### 2.11.2.- HCV Ever Tested    ####  
 # --------------------------------- # 
 # CBVCT 2: Proportion of clients who reported to have been previously tested for HCV 
 # Mirem aquells que siguin "previously tested" per HCV
@@ -1298,7 +1347,7 @@ setorder(x = disagg_cobatest, Centre, Id, HCVEverTested, na.last = T)
 disagg_cobatest[!is.na(Id), HCVEverTested := nafill(x = as.numeric(HCVEverTested), type = 'locf'), by= .(Centre, Id)]
 
 
-### 2.11.2.- HCV Ever Diagnosed    ####  
+### 2.11.3.- HCV Ever Diagnosed    ####  
 # ----------------------------------- # 
 # CBVCT 3: Proportion of clients who reported to have been previously diagnosed with HCV 
 # HCVEverDiagnosed: 1 yes, 2 no
@@ -1322,7 +1371,7 @@ setorder(x = disagg_cobatest, Centre, Id, HCVEverDiagnosed, na.last = T)
 disagg_cobatest[!is.na(Id), HCVEverDiagnosed := nafill(x = as.numeric(HCVEverDiagnosed), type = 'locf'), by= .(Centre, Id)]
 
 
-### 2.11.3.- HCV Screening Test           ####  
+### 2.11.4.- HCV Screening Test           ####  
 # ------------------------------------------ #
 
 ## COMPROBACIÓ:  
@@ -1336,7 +1385,7 @@ disagg_cobatest[is.na(HCVScreeningTest) & HCVScreeningTestResult %in% c('1','2')
 disagg_cobatest[!HCVScreeningTest %in% c('1', '2'), HCVScreeningTest := as.character(NA)]
 
 
-### 2.11.4.- HCV Screening Test Results   ####  
+### 2.11.5.- HCV Screening Test Results   ####  
 # ------------------------------------------ #
 # CVBCT 5
 # HCVScreeningTestResult: 1 yes, 2 no
@@ -1348,10 +1397,18 @@ disagg_cobatest[!HCVScreeningTest %in% c('1', '2'), HCVScreeningTest := as.chara
 disagg_cobatest[!HCVScreeningTestResult %in% c('1', '2'), HCVScreeningTestResult := as.character(NA)]
 
 
+### 2.11.6.- HCV Screening Test Results   ####  
+# ------------------------------------------ #
+## COMPROBACIÓ:
+# disagg_cobatest[, .N, HCVScreeningTestResult]
+
+# Recategoritzem
+disagg_cobatest[!HCVConfirmatoryTestResult %in% c('1', '2'), HCVConfirmatoryTestResult := as.character(NA)]
+
+
+
 ## 2.12- Fix Other Data     ####
 #----------------------------- #
-# COMPROBACIO: disagg_cobatest[, .N, by= .(Centre, HCVTestUsed)][order(Centre, HCVTestUsed)]    # Valors "2, 3" que passem a "2" per ser poquets (LAURA 07/07/2021). 
-disagg_cobatest[Centre == 59 & HCVTestUsed == "2, 3", HCVTestUsed := "2"] 
 
 
 ### 2.12.1.- Females - MSM    ####  
@@ -1427,8 +1484,9 @@ disagg_cobatest <- merge(x = disagg_cobatest, y= center_maps[, .(Centre= as.char
 #
 # Utilitzem Id
 disagg_cobatest[Centre %in% center_maps[Origen == "Cobatest_tool", Centre] , Id_main := Id]   # BBDD Cobatest Tool
-disagg_cobatest[Centre == 69, Id_main := Id]                                                  # Fulcrum
- 
+disagg_cobatest[Centre %in% c(8,28,55,56,57,58,59,60,61,62), Id_main := Id]                                                  
+
+
 if(disagg_cobatest[, sum(is.na(Id_main))] > 0) {
   warning("No pot haver-hi Id_main Missing. Revisa.")
   disagg_cobatest[is.na(Id_main), .N, .(Centre, CentreName)]
@@ -1482,7 +1540,7 @@ disagg_cobatest <- unique(disagg_cobatest)
 # 4.- SAVE DISAGG DATA                                                      ####
 # ************************************************************************* ####
 
-# fwrite(x = disagg_cobatest, file = paste0(OUTPUT_DATA_FOLDER, "disagg_cobatest_2018_", TODAY, ".csv"))
+# fwrite(x = disagg_cobatest, file = paste0(OUTPUT_DATA_FOLDER, "disagg_cobatest_2019_", TODAY, ".csv"))
 list.files(OUTPUT_DATA_FOLDER)
 
 # Per borrar existents
